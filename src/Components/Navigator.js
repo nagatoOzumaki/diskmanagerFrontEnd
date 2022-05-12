@@ -9,44 +9,51 @@ var rootdirectoriesUrl = "http://localhost:8081/manager/v1/users_home_directorie
 function Navigator() {
     const [rootDirName, setRootDirName] = useState([]);
     const [error, setError] = useState(false);
-    const [once,setOnce]=useState(false)
-    const [parentDirectory,setParentDirectory]=useState(['root',40])
+
+    //il reste le cas d utiliser le username de parentfolder
+    const [ParentName,setParentName]=useState('root')
+    const [previousParentId,setPreviousParentId]=useState(40)
+    const [previousParentName,setPreviousParentName]=useState('all')
     const [username,setUsername]=useState("all")
-    const [parent,setParent]=useState(40)
+    
     const [folderId,setFolderId]=useState(40)
 
-    const openFolder=(username,id)=>{
+    const openFolder=(usernam,id)=>{
                     const init = {
                         mode: 'no-cors',
                         methode: 'GET'
                         }
-                    axios.get(`http://localhost:8081/manager/v1/folder/${username}/${id}`,{
-                        method: 'HEAD',
-                        mode: 'no-cors',
-                        headers: {
-                            'Access-Control-Allow-Origin': '*',
-                            Accept: 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                        crossdomain: true,
-                    })
+                    axios.get(`http://localhost:8081/manager/v1/folder/${usernam}/${id}`)
                     .then(
                         res=>{
                             console.log(res.data)
-                            setRootDirName(res.data);
-                            if(rootDirName.folders!==null&& rootDirName.folders[0]){
-                                setParentDirectory([rootDirName.folders[0].parentFolder.name,rootDirName.folders[0].parentFolder.parentFolder.id])
-                       }
-
+                            setRootDirName(res.data);   
                     }
-                    )}
+                    ).then(res=>{
+                         if(rootDirName.folders.length!==0){
+                                let oneChild=rootDirName.folders[0];
+                                if(oneChild.parentFolder!==null)
+                                        {
+                                            setPreviousParentId(oneChild.parentFolder.id);
+                                            setPreviousParentName(oneChild.parentFolder.owner)
+                                            setParentName(oneChild.parentFolder.name);
+                                        }
+                    //  else{
+                    //     setPreviousParentId(oneChild.id);
+                    //     setPreviousParentName(oneChild.parentFolder.owner)
+                    //     setParentName(oneChild.parentFolder.name);
+                    //  }
+                     }
 
-    const goBack=(username)=>{ 
-        openFolder(username,parentDirectory[1])
-        
-        if(rootDirName.folders!==null&&rootDirName.folders[0]){
-            setParentDirectory([rootDirName.folders[0].parentFolder.name,rootDirName.folders[0].parentFolder.parentFolder.id])
-   }    }
+                    })
+                }
+
+    const goBack=()=>{
+        setFolderId(previousParentId);
+        setUsername(previousParentName)
+        openFolder(username,folderId)
+       // openFolder(previousParentName,previousParentId)  
+    }
 
     const getHomeDirectories=()=>{
                     const init = {
@@ -68,44 +75,54 @@ function Navigator() {
                     .then(
                         res=>{
                             setRootDirName(res.data)
-                            if(rootDirName.folders!==null&&rootDirName.folders[0]){
-                                     setParentDirectory([rootDirName.folders[0].parentFolder.name,rootDirName.folders[0].parentFolder.parentFolder.id])
-                            }
                         }
-                    )
+                    ).then(res=>{
+                        //  setUsername(oneChild.owner);
+                        if(rootDirName.folders.length!==0){
+                            let oneChild=rootDirName.folders[0]
+                            if(oneChild.parentFolder.parentFolder!==null){
+                            // setFolderId(id);
+                                setPreviousParentId(oneChild.id)
+                                setParentName(oneChild.name)
+                        }}
+
+                   })
     }
+
+    // useEffect(() => {
+    //         //setUsername("all");
+    //        // setFolderId(40);
+    //        // getHomeDirectories()
+    //    }, 
+    //    [])
+   
     useEffect(() => {
-                    setOnce(true)
-                    getHomeDirectories();
-                    // setParentDirectory(['root',40])
-                        
-    }, [])
-    useEffect(() => {
-                if(once===true){
-                 openFolder(username,folderId);
-                }else{
-                    return 
-                }
-                }, [username,folderId])
+                    openFolder('all',40);
+                }, 
+                [])
             
 
 
     return (
 
-            error ? <div>Error </div> :
+            error ? <div>Error</div>:
            
-            rootDirName.length !== 0 ? <div className='navigator'>
-                <div onClick={()=>goBack(username)}>Parent : {parentDirectory[0]+"  "+username}</div>
+            rootDirName.length !== 0 ?<>
+           { rootDirName.folders.length!==0?<button style={{padding:'12px'}} onClick={()=>openFolder(rootDirName.folders[0].parentFolder.parentFolder.owner,rootDirName.folders[0].parentFolder.parentFolder.id)}>Parent : {ParentName+"  "+username}</button>:
+         <button style={{padding:'12px'}} onClick={()=>openFolder(previousParentName,previousParentId)}>Parent : {ParentName+"  "+username}</button>
+        
+        }<hr/><br/><br/><div className='navigator'>
+                
                 {
-                    rootDirName.folders?rootDirName.folders.map(folder =>
-                        <Folder setFolderId={setFolderId} folder={folder} setParentDirectory={setParentDirectory} setUsername={setUsername} id={folder.id} key={folder.id} name={folder.name} setRootDirName={setRootDirName}/>):null
+                    rootDirName.folders.length!=0?rootDirName.folders.map(folder =>
+                        <Folder openFolder={openFolder} setFolderId={setFolderId} folder={folder}  setUsername={setUsername} id={folder.id} key={folder.id}/>):<div>Vide</div>
                    
                 }
                 {
                      rootDirName.files?rootDirName.files.map(file =>
-                        <File id={file.id} key={file.id} name={file.name} username={file.owner} setRootDirName={setRootDirName}/>):null
+                        <File id={file.id} key={file.id} name={file.name} username={file.owner} />):<div>Vide</div>
                 }
-            </div> : <div>no folders</div>
+            </div></> : <div>no folders</div>
     )
 }
 
