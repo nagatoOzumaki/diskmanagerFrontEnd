@@ -18,6 +18,18 @@ function Navigator() {
     
     const [folderId,setFolderId]=useState(40)
 
+{
+    console.log(ParentName)
+    console.log(username)
+    console.log(previousParentId)
+    console.log(previousParentName)
+    
+}
+
+
+
+
+
     const openFolder=(usernam,id)=>{
                     const init = {
                         mode: 'no-cors',
@@ -26,7 +38,7 @@ function Navigator() {
                     axios.get(`http://localhost:8081/manager/v1/folder/${usernam}/${id}`)
                     .then(
                         res=>{
-                            console.log(res.data)
+                          //  console.log(res.data)
                             setRootDirName(res.data);   
                     }
                     ).then(res=>{
@@ -109,7 +121,7 @@ function Navigator() {
                 }, 
                 [])
             
-console.log(folderId);console.log(ParentName)
+//console.log(folderId);console.log(ParentName)
 
     return (
 
