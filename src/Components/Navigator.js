@@ -36,7 +36,7 @@ function Navigator() {
                                         {
                                             setPreviousParentId(oneChild.parentFolder.id);
                                             setPreviousParentName(oneChild.parentFolder.owner)
-                                            setParentName(oneChild.parentFolder.name);
+                                            //setParentName(oneChild.parentFolder.name);
                                         }
                     //  else{
                     //     setPreviousParentId(oneChild.id);
@@ -54,7 +54,15 @@ function Navigator() {
         openFolder(username,folderId)
        // openFolder(previousParentName,previousParentId)  
     }
-
+    const getParendName=()=>{
+        axios.get(`http://localhost:8081/manager/v1/folder/${username}/${previousParentId}`)
+        .then(
+            res=>{
+               // console.log(res.data)
+                setParentName(res.data.folders[0].parentFolder.name)  
+        }
+        )
+    }
     const getHomeDirectories=()=>{
                     const init = {
                         mode: 'no-cors',
@@ -101,21 +109,21 @@ function Navigator() {
                 }, 
                 [])
             
-
+console.log(folderId);console.log(ParentName)
 
     return (
 
             error ? <div>Error</div>:
            
             rootDirName.length !== 0 ?<>
-           { rootDirName.folders.length!==0?<button style={{padding:'12px'}} onClick={()=>openFolder(rootDirName.folders[0].parentFolder.parentFolder.owner,rootDirName.folders[0].parentFolder.parentFolder.id)}>Parent : {ParentName+"  "+username}</button>:
-         <button style={{padding:'12px'}} onClick={()=>openFolder(previousParentName,previousParentId)}>Parent : {ParentName+"  "+username}</button>
+           { rootDirName.folders.length!==0?<button style={{padding:'12px'}} onClick={()=>{openFolder(rootDirName.folders[0].parentFolder.parentFolder.owner,rootDirName.folders[0].parentFolder.parentFolder.id);setParentName(rootDirName.folders[0].parentFolder.parentFolder.name)}}>Parent : {ParentName+"  "+username}</button>:
+         <button style={{padding:'12px'}} onClick={()=>{openFolder(previousParentName,previousParentId);getParendName()}}>Parent : {ParentName+"  "+username}</button>
         
         }<hr/><br/><br/><div className='navigator'>
                 
                 {
                     rootDirName.folders.length!=0?rootDirName.folders.map(folder =>
-                        <Folder openFolder={openFolder} setFolderId={setFolderId} folder={folder}  setUsername={setUsername} id={folder.id} key={folder.id}/>):<div>Vide</div>
+                        <Folder setParentName={setParentName} openFolder={openFolder} setFolderId={setFolderId} folder={folder}  setUsername={setUsername} id={folder.id} key={folder.id}/>):<div>Vide</div>
                    
                 }
                 {
