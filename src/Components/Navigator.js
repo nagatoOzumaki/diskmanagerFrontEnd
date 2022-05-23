@@ -5,8 +5,8 @@ import './Navigator.css';
 import axios from 'axios'
 import { useEffect, useState } from 'react';
 import Authentication from './Authentication';
+import AdminPanel from './AdminPanel';
 var rootdirectoriesUrl = "http://localhost:8081/manager/v1/users_home_directories"
-// const dd = [{ "id": 41, "name": "riadHome", "owner": "riad", "parentFolder": { "id": 40, "name": "root", "owner": "all", "parentFolder": null, "taille": 0, "hibernateLazyInitializer": {} }, "taille": 0 }, { "id": 42, "name": "medHome", "owner": "med", "parentFolder": { "id": 40, "name": "root", "owner": "all", "parentFolder": null, "taille": 0, "hibernateLazyInitializer": {} }, "taille": 0 }]
 const rootId=1
 function Navigator() {
     const [rootDirName, setRootDirName] = useState([]);
@@ -22,27 +22,35 @@ function Navigator() {
     const [folderId,setFolderId]=useState(rootId)
     const [authenticcatioPopUp,setAuthenticcatioPopUp]=useState(false)
     const [authenticatedUser,setAuthenticatedUser]=useState({username:"all",password:"all"})
+    const [notAuthorizedError,setNotAuthorizedError]=useState(false)
 
   
 
 {
-    console.log(ParentName)
+    console.log("parent name:"+ParentName)
     console.log(username)
-    console.log(previousParentId)
-    console.log(previousParentName)
-    console.log(folderId)
+    console.log("prev id:"+previousParentId)
+    console.log("prevParentname id:"+previousParentName)
+    console.log("folder id:"+folderId)
     console.log("auth : "+authenticatedUser.password)
+    console.log("Not Authorised : "+notAuthorizedError)
+    console.log("--------------------------------------")
     
 }
     const createFolder=(name)=>{
+        var credentials = btoa(`${authenticatedUser.username}:${authenticatedUser.password}`);
+        var auth = { "Authorization" : `Basic ${credentials}` };
+      
         const init = {
             mode: 'no-cors',
+            method:"post",
+            headers:auth,
+            credentials: 'include'
             }
-        axios.post(`http://localhost:8081/manager/v1/userFolder/createFolder/${previousParentName}/${name}/${folderId}`)
-        .then(()=>openFolder(previousParentName,folderId))
-        .catch(
-            ()=>console.log("error")
-        )
+        axios.post(`http://localhost:8081/manager/v1/userFolder/createFolder/${authenticatedUser.username}/${name}/${folderId}`)
+        .then(()=>console.log("creating Folder: "+authenticatedUser.username+name+folderId))
+        .then(()=>openFolder(authenticatedUser.username,folderId))
+       .catch(()=>setNotAuthorizedError(true))
     }
     const openFolder=(usernam,id)=>{
                  
@@ -99,32 +107,6 @@ function Navigator() {
         }
         )
     }
-    // const getHomeDirectories=()=>{
-                   
-    //                  axios.get(rootdirectoriesUrl)
-    //                 .then(
-    //                     res=>{
-    //                         setRootDirName(res.data)
-    //                     }
-    //                 ).then(res=>{
-    //                     //  setUsername(oneChild.owner);
-    //                     if(rootDirName.folders.length!==0){
-    //                         let oneChild=rootDirName.folders[0]
-    //                         if(oneChild.parentFolder.parentFolder!==null){
-    //                         // setFolderId(id);
-    //                             setPreviousParentId(oneChild.id)
-    //                             setParentName(oneChild.name)
-    //                     }}
-
-    //                })
-    // }
-
-    // useEffect(() => {
-    //         //setUsername("all");
-    //        // setFolderId(40);
-    //        // getHomeDirectories()
-    //    }, 
-    //    [])
    
     useEffect(() => {
                     openFolder('all',rootId);
@@ -149,20 +131,42 @@ function Navigator() {
 
 
 
-           { rootDirName.folders.length!==0?<button style={{padding:'12px'}} onClick={()=>{openFolder(rootDirName.folders[0].parentFolder.parentFolder.owner,rootDirName.folders[0].parentFolder.parentFolder.id);setParentName(rootDirName.folders[0].parentFolder.parentFolder.name)}}>Parent : {ParentName+"  "+username}</button>:
+           { 
+        //    check if there no folders
+           rootDirName.folders.length!==0?
+        //    those two lines are for return back
+        <button style={{padding:'12px'}}onClick={()=>{openFolder(rootDirName.folders[0].parentFolder.parentFolder.owner,rootDirName.folders[0].parentFolder.parentFolder.id);setParentName(rootDirName.folders[0].parentFolder.parentFolder.name)}}>Parent : {ParentName+"  "+username}</button>:
          <button style={{padding:'12px'}} onClick={()=>{openFolder(previousParentName,previousParentId);getParendName()}}>Parent : {ParentName+"  "+username}</button>
-        }<hr/><br/><br/><div className='navigator'>
-                <div className='createFolder'><input value={createFolderName} onChange={(e=>setCreateFolderName(e.target.value))}/><button onClick={()=>createFolder(createFolderName)}>Create</button></div>
-                {
-                    rootDirName.folders.length!=0?rootDirName.folders.map(folder =>
-                        <Folder setParentId={setParentId} setParentName={setParentName} openFolder={openFolder} setFolderId={setFolderId} folder={folder}  setUsername={setUsername} id={folder.id} key={folder.id}/>):<div>Vide</div>
-                   
-                }
-                {
-                     rootDirName.files?rootDirName.files.map(file =>
-                        <File file={file} key={file.id} />):<div>Vide</div>
-                }
-            </div></> : <div>no folders</div>
+        }
+        <hr/><br/><br/>
+        {/* Folders's navigation */}
+         <div className='navigator'> 
+        {
+            //Admin panel
+           authenticatedUser.username==="admin"?<>
+                <div className='AdminPanel'><AdminPanel/></div>
+                {/* create Folder bar */}
+                <div className='createFolder'><input disabled={!(ParentName!="root" &&folderId!==1)} value={createFolderName} 
+                onChange={(e=>setCreateFolderName(e.target.value))}/><button onClick={()=>createFolder(createFolderName)}>Create</button></div>
+            </>:null
+            }
+               <div className='NavigationContainer'>
+            
+                        {
+                            // list folders
+                            rootDirName.folders.length!=0?rootDirName.folders.map(folder =>
+                                <Folder setParentId={setParentId} setParentName={setParentName} 
+                                openFolder={openFolder} setFolderId={setFolderId} folder={folder}  
+                                setUsername={setUsername} id={folder.id} key={folder.id}/>):<div>Vide</div>
+                        
+                        }
+                        {
+                            //list files
+                            rootDirName.files?rootDirName.files.map(file =>
+                                <File file={file} key={file.id} />):<div>Vide</div>
+                        }
+                </div>
+             </div></> : <div>no folders</div> 
     )
 }
 

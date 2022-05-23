@@ -42,7 +42,7 @@ console.log(credentials)
   return (
 
             <div style={{padding:"12px",position:'absolute',zIndex:3,backgroundColor:"red",top:"50%",right:"50%"}}>
-                <h5>Authentication</h5>
+               <span onClick={()=>setAuthenticcatioPopUp(false)}>X</span>
                     <div>
                         <input onChange={e=>{
                             setCredentials({...credentials,myUsername:e.target.value})

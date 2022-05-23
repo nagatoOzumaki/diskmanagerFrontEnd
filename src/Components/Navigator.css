@@ -1,4 +1,29 @@
 .navigator {
+  position: relative;
+}
+
+.NavigationContainer {
+  background-color: #eee;
+  position: absolute;
+  top: 10px;
+  width: 80%;
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
+  height: 300px;
+  padding: 2rem;
+  overflow-y: scroll;
+  margin-top: 15px;
+}
+.createFolder {
+  display: flex;
+  position: absolute;
+  height: 20px;
+  width: 50px;
+  top: 0;
+}
+.AdminPanel {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.3);
 }
