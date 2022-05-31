@@ -144,12 +144,13 @@ function Navigator() {
         {
             //Admin panel
            authenticatedUser.username==="admin"?<>
-                <div className='AdminPanel'><AdminPanel/></div>
+                <div className='AdminPanel'><AdminPanel setAuthenticatedUser={setAuthenticatedUser} authenticatedUser={authenticatedUser}/></div>
                 {/* create Folder bar */}
-                <div className='createFolder'><input disabled={!(ParentName!="root" &&folderId!==1)} value={createFolderName} 
-                onChange={(e=>setCreateFolderName(e.target.value))}/><button onClick={()=>createFolder(createFolderName)}>Create</button></div>
+               
             </>:null
             }
+             <div className='createFolder'><input disabled={!(ParentName!="root" &&folderId!==1)} value={createFolderName} 
+                onChange={(e=>setCreateFolderName(e.target.value))}/><button onClick={()=>createFolder(createFolderName)}>Create</button></div>
                <div className='NavigationContainer'>
             
                         {

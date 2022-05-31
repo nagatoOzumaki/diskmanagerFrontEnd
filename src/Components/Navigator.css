@@ -24,6 +24,20 @@
 .AdminPanel {
   position: absolute;
   z-index: 3;
-  right: 0;
+  right: 240px;
+  top: 30px;
   background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.adminPanelField {
+  padding: 10px;
+  background-color: rgb(82, 79, 74);
+  margin: 3px;
+}
+.toolsWindow {
+  position: absolute;
+  z-index: 1232;
+  background-color: azure;
 }
