@@ -6,3 +6,16 @@
 
 .fileImage {
 }
+.dropDown {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* background-color: black; */
+  top: 12px;
+}
+.dropDown button {
+  padding: 3px;
+}
+.fileContent {
+  padding: 12px;
+}
