@@ -3,6 +3,7 @@ import axios from 'axios'
  
 function Authentication({username,folderId,setAuthenticcatioPopUp,setRootDirName,setPreviousParentName,setPreviousParentId,rootDirName,setAuthenticatedUser,authenticatedUser}) {
     const [credentials, setCredentials] = useState({myUsername:"",myPassword:""})
+    const [authIsShown, setAuthIsShown] = useState(true)
     const openFolder=(usernam,id)=>{
                  
         var credential = btoa(`${credentials.myUsername}:${credentials.myPassword}`);
@@ -39,30 +40,34 @@ function Authentication({username,folderId,setAuthenticcatioPopUp,setRootDirName
     }
 
 console.log(credentials)
-  return (
+  return authIsShown?(
 
-            <div style={{padding:"12px",position:'absolute',zIndex:3,backgroundColor:"red",top:"50%",right:"50%"}}>
-               <span onClick={()=>setAuthenticcatioPopUp(false)}>X</span>
+            <div style={{padding:"12px",position:'absolute',zIndex:3,backgroundColor:"rgb(218, 212, 212)",top:"50%",right:"50%"}}>
+               <button onClick={()=>setAuthenticcatioPopUp(false)}>close</button><br/><br/>
                     <div>
-                        <input onChange={e=>{
+                        <input  style={{padding:"4px",display:"block"}} placeholder='username' onChange={e=>{
                             setCredentials({...credentials,myUsername:e.target.value})
                             setAuthenticatedUser({...authenticatedUser,myUsername:e.target.value})
                         }
-                        }/></div>
-                    <div>
-                        <input onChange={e=>{
+                        }/>
+                        
+                        <input type="password" style={{marginTop:"10px",padding:"4px",display:"block"}} placeholder='password' onChange={e=>{
+                          
                             setCredentials({...credentials,myPassword:e.target.value})
                             setAuthenticatedUser({...authenticatedUser,myPassword:e.target.value})
                             }}/>
                     </div>  
                     <div>
+                        <br/>
                         <button onClick={()=>{
-                            openFolder(username,folderId);
-                            setAuthenticatedUser({...authenticatedUser,username:credentials.myUsername,password:credentials.myPassword})
+                            if(credentials.myUsername!==""&&credentials.myPassword!==""){
+                                openFolder(username,folderId);
+                                setAuthenticatedUser({...authenticatedUser,username:credentials.myUsername,password:credentials.myPassword})
+                                setAuthIsShown(false)}
                          }}>Unlock</button>
                     </div>
              </div>
-  )
+  ):null
   
 }
 

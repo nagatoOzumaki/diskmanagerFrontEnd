@@ -39,13 +39,13 @@ const removeUsers=(username,password)=>{
     console.log("deb:users:"+users)
 
   return (
-    <div>
+    <div style={{background:"rgb(0,0,0,0.5)",padding:"12px"}}>
         <button onClick={close}>Close</button>
         <h4>Remove users</h4>
         {
             users!==null?users.map(user=>
                  <div style={userStyle} >
-                    user-{user.id}:{user.username}
+                    <small>{user.username}</small><br/>
                     <button onClick={()=>removeUsers(user.username,user.password)}>remove</button>
                 </div>
             ):null

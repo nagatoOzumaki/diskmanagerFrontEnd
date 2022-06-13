@@ -3,7 +3,7 @@ import AddUser from './AddUser';
 import './Navigator.css';
 import RemoveUser from './RemoveUser';
 import axios from 'axios'
-function AdminPanel({setAuthenticatedUser}) {
+function AdminPanel({setAuthenticatedUser,openFolder}) {
   const [addUser,setAddUser] = useState(false);
   const [removeUser,setRemoveUser] = useState(false);
   const [changeAdmin,setChangeAdmin] = useState(false);
@@ -27,7 +27,7 @@ function AdminPanel({setAuthenticatedUser}) {
         <button className='adminPanelField' onClick={logout}>Log out from Admin</button>
         <div className='toolsWindow'>
              {
-               addUser?<AddUser close={()=>setAddUser(false)}/>:null
+               addUser?<AddUser openFolder={openFolder} close={()=>setAddUser(false)}/>:null
              } 
              {
                 removeUser?<RemoveUser close={()=>setRemoveUser(false)}/>:null
